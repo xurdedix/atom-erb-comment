@@ -8,4 +8,5 @@ Comment with ruby ​​comment instead of html comment if it is a file of type 
 Set it to the key you want in the file `atom/keymap.cson`:
 
 `'atom-text-editor:not([mini])':`
-<space>&nbsp;&nbsp;&nbsp;&nbsp;`'ctrl-shift-c': 'erb-comment:toggle'`
+
+&nbsp;&nbsp;&nbsp;&nbsp;`'ctrl-shift-c': 'erb-comment:toggle'`
