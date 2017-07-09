@@ -1,0 +1,22 @@
+# See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Toggle erb-comment'
+      'command': 'erb-comment:toggle'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'erb-comment'
+      'submenu': [
+        {
+          'label': 'Toggle'
+          'command': 'erb-comment:toggle'
+        }
+      ]
+    ]
+  }
+]
