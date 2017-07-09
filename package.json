@@ -1,9 +1,14 @@
 {
   "name": "erb-comment",
   "main": "./lib/erb-comment",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Patch for rails html.erb comment",
-  "keywords": ["rails","erb","comment","ruby"],
+  "keywords": [
+    "rails",
+    "erb",
+    "comment",
+    "ruby"
+  ],
   "activationCommands": {
     "atom-workspace": "erb-comment:toggle"
   },
@@ -12,6 +17,5 @@
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
