@@ -1,4 +1,4 @@
-# erb-comment
+# ERB Comment
 
  [Atom erb comment package](http://github.com)
 
@@ -12,9 +12,8 @@ Comment with ruby ​​comment instead of html comment if it is a file of type 
 ```
 apm install erb-comment
 ```
-
-Set it to the key you want in the file `atom/keymap.cson`:
-
+### Key config
+Set the key you want in the Edit > Keymap menu. Adding this code to the end of the file `keymap.cson`:
 ```
 'atom-text-editor:not([mini])':
    'ctrl-/': 'erb-comment:toggle'
@@ -24,3 +23,5 @@ Set it to the key you want in the file `atom/keymap.cson`:
 'atom-text-editor:not([mini])':
    'ctrl-shift-c': 'erb-comment:toggle'
  ```
+
+For more info about keymap see [atom documentation](http://flight-manual.atom.io/using-atom/sections/basic-customization/#customizing-keybindings):

@@ -1,15 +1,10 @@
-ErbCommentView = require './erb-comment-view'
 {CompositeDisposable} = require 'atom'
 
 module.exports = ErbComment =
-  erbCommentView: null
-  modalPanel: null
+
   subscriptions: null
 
   activate: (state) ->
-    @erbCommentView = new ErbCommentView(state.erbCommentViewState)
-    @modalPanel = atom.workspace.addModalPanel(item: @erbCommentView.getElement(), visible: false)
-
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
@@ -17,12 +12,7 @@ module.exports = ErbComment =
     @subscriptions.add atom.commands.add 'atom-workspace', 'erb-comment:toggle': => @toggle()
 
   deactivate: ->
-    @modalPanel.destroy()
     @subscriptions.dispose()
-    @erbCommentView.destroy()
-
-  serialize: ->
-    erbCommentViewState: @erbCommentView.serialize()
 
   toggle: ->
     if editor = atom.workspace.getActiveTextEditor()
@@ -31,17 +21,13 @@ module.exports = ErbComment =
         editor.selectLinesContainingCursors()
       selection = editor.getSelectedText()
       language = editor.getGrammar().name
-
+      # console.log '|'+ selection + '|'
       if language == "HTML (Rails)"
-        arr = selection.split("\n")
-        must_comment = this.commentOrDecomment(selection)
-        console.log(must_comment)
-        for cad, i in arr
-          if must_comment
-           arr[i] = this.commentRecursive(cad)
-          else
-           arr[i] = this.decommentRecursive(cad)
-        editor.insertText(arr.join("\n"))
+        if this.commentOrDecomment(selection)
+           text = this.comment(selection)
+        else
+           text = this.decomment(selection)
+        editor.insertText(text)
         editor.setSelectedBufferRanges(ranges)
       else
         editor = atom.workspace.getActivePane()
@@ -49,8 +35,20 @@ module.exports = ErbComment =
         editorElement = atom.views.getView(atom.workspace.getActiveTextEditor())
         atom.commands.dispatch(editorElement, 'editor:toggle-line-comments')
 
+  comment: (selection) ->
+    arr = selection.split("\n")
+    for cad, i in arr
+      arr[i] = this.commentRecursive(cad)
+    arr.join("\n")
+
+  decomment: (selection) ->
+    arr = selection.split("\n")
+    for cad, i in arr
+      arr[i] = this.decommentRecursive(cad)
+    arr.join("\n")
+
   commentRecursive: (cad,i=0) ->
-    if i > 5 #limite bucle infinito
+    if i > 20 #limite bucle infinito
       throw "limite de interaciones"
 
     if cad.length > 0
@@ -70,7 +68,7 @@ module.exports = ErbComment =
     cad
 
   decommentRecursive: (cad,i=0) ->
-    if i > 5 #limite bucle infinito
+    if i > 20 #limite bucle infinito
       throw "limite de interaciones"
 
     if cad.length > 0
@@ -94,7 +92,7 @@ module.exports = ErbComment =
   commentOrDecomment: (selection,i=0) ->
     res = false
     arr = selection.split("\n")
-    arr.pop() # Elimino la linean blanco del final
+    # arr.pop() # Elimino la linean blanco del final
     for cad, i in arr
       if  /^(\s|\t)*$/g.exec(cad) == null
         if this.commentOrDecommentRecursive(cad)
@@ -102,7 +100,7 @@ module.exports = ErbComment =
     return false
 
   commentOrDecommentRecursive: (cad,i=0) ->
-    if i > 5 #limite bucle infinito
+    if i > 20 #limite bucle infinito
       throw "limite de interaciones"
     # console.log("|" + cad + "|" )
     if cad.length > 0
@@ -132,14 +130,14 @@ module.exports = ErbComment =
             return true
 
       else
-        console.log('solo no erb')
+        # console.log('solo no erb')
         res = /^(\s|\t)+$/g.exec(cad)
         if res != null
           return false
         else
           return true
     else #si es linea vacia
-      console.log('linea vacia')
+      # console.log('linea vacia')
       return true
 
   # commentLine: (cad) ->

@@ -6,57 +6,87 @@ ErbComment = require '../lib/erb-comment'
 # or `fdescribe`). Remove the `f` to unfocus the block.
 
 describe "ErbComment", ->
-  [workspaceElement, activationPromise] = []
+  describe "when a one line with several ruby", ->
+    it "comment and decoment line ", ->
+      text   = "<%= content_tag :h1, 'title', :class=>'red' %><% var = '' %>"
+      result = "<%#= content_tag :h1, 'title', :class=>'red' %><%# var = '' %>"
+      expect(ErbComment.commentOrDecomment(text)).toBe(true)
+      expect(ErbComment.comment(text)).toBe(result)
+      expect(ErbComment.commentOrDecomment(result)).toBe(false)
+      expect(ErbComment.decomment(result)).toBe(text)
 
-  beforeEach ->
-    workspaceElement = atom.views.getView(atom.workspace)
-    activationPromise = atom.packages.activatePackage('erb-comment')
 
-  describe "when the erb-comment:toggle event is triggered", ->
-    it "hides and shows the modal panel", ->
-      # Before the activation event the view is not on the DOM, and no panel
-      # has been created
-      expect(workspaceElement.querySelector('.erb-comment')).not.toExist()
+  describe "when a one line with ruby like <%= %>", ->
+    it "comment and decoment line ", ->
+      text   = "<%= content_tag :h1, 'title', :class=>'red' %>"
+      result = "<%#= content_tag :h1, 'title', :class=>'red' %>"
+      expect(ErbComment.commentOrDecomment(text)).toBe(true)
+      expect(ErbComment.comment(text)).toBe(result)
+      expect(ErbComment.commentOrDecomment(result)).toBe(false)
+      expect(ErbComment.decomment(result)).toBe(text)
 
-      # This is an activation event, triggering it will cause the package to be
-      # activated.
-      atom.commands.dispatch workspaceElement, 'erb-comment:toggle'
+  describe "when a one line with ruby like <% %>", ->
+    it "comment and decoment line ", ->
+      text   = "<% var = '' %>"
+      result = "<%# var = '' %>"
+      expect(ErbComment.commentOrDecomment(text)).toBe(true)
+      expect(ErbComment.comment(text)).toBe(result)
+      expect(ErbComment.commentOrDecomment(result)).toBe(false)
+      expect(ErbComment.decomment(result)).toBe(text)
 
-      waitsForPromise ->
-        activationPromise
 
-      runs ->
-        expect(workspaceElement.querySelector('.erb-comment')).toExist()
+  describe "when a one line with html is comment", ->
+    it "comment line", ->
+      text   = "<br>"
+      result = "<%#*<br>%>"
+      expect(ErbComment.commentOrDecomment(text)).toBe(true)
+      expect(ErbComment.comment(text)).toBe(result)
+      expect(ErbComment.commentOrDecomment(result)).toBe(false)
+      expect(ErbComment.decomment(result)).toBe(text)
 
-        erbCommentElement = workspaceElement.querySelector('.erb-comment')
-        expect(erbCommentElement).toExist()
+  describe "when a one line with html and ruby is comment", ->
+    it "comment line", ->
+      text   = "<img src='<%= img.src %>' class='<%= myclass %>'>"
+      result = "<%#*<img src='%><%#= img.src %><%#*' class='%><%#= myclass %><%#*'>%>"
+      expect(ErbComment.commentOrDecomment(text)).toBe(true)
+      expect(ErbComment.comment(text)).toBe(result)
+      expect(ErbComment.commentOrDecomment(result)).toBe(false)
+      expect(ErbComment.decomment(result)).toBe(text)
 
-        erbCommentPanel = atom.workspace.panelForItem(erbCommentElement)
-        expect(erbCommentPanel.isVisible()).toBe true
-        atom.commands.dispatch workspaceElement, 'erb-comment:toggle'
-        expect(erbCommentPanel.isVisible()).toBe false
+  describe "when multiline with html and ruby is comment", ->
+    it "comment line", ->
+      text   = "\n\
+      <% var = '' %>\n\
+      <%= content_tag :h1, 'title', :class=>'red' %><% var = '' %>\n\
+         <br>\n\
+      <img src='<%= img.src %>' class='<%= myclass %>'>\n\
+      "
+      result = "\n\
+      <%# var = '' %>\n\
+      <%#= content_tag :h1, 'title', :class=>'red' %><%# var = '' %>\n\
+         <%#*<br>%>\n\
+      <%#*<img src='%><%#= img.src %><%#*' class='%><%#= myclass %><%#*'>%>\n\
+      "
+      expect(ErbComment.commentOrDecomment(text)).toBe(true)
+      expect(ErbComment.comment(text)).toBe(result)
+      expect(ErbComment.commentOrDecomment(result)).toBe(false)
+      expect(ErbComment.decomment(result)).toBe(text)
 
-    it "hides and shows the view", ->
-      # This test shows you an integration test testing at the view level.
-
-      # Attaching the workspaceElement to the DOM is required to allow the
-      # `toBeVisible()` matchers to work. Anything testing visibility or focus
-      # requires that the workspaceElement is on the DOM. Tests that attach the
-      # workspaceElement to the DOM are generally slower than those off DOM.
-      jasmine.attachToDOM(workspaceElement)
-
-      expect(workspaceElement.querySelector('.erb-comment')).not.toExist()
-
-      # This is an activation event, triggering it causes the package to be
-      # activated.
-      atom.commands.dispatch workspaceElement, 'erb-comment:toggle'
-
-      waitsForPromise ->
-        activationPromise
-
-      runs ->
-        # Now we can test for view visibility
-        erbCommentElement = workspaceElement.querySelector('.erb-comment')
-        expect(erbCommentElement).toBeVisible()
-        atom.commands.dispatch workspaceElement, 'erb-comment:toggle'
-        expect(erbCommentElement).not.toBeVisible()
+  describe "when multiline with html and ruby and With some previous comments", ->
+    it "comment line", ->
+      text   = "\n\
+      <% var = '' %>\n\
+      <%= content_tag :h1, 'title', :class=>'red' %><% var = '' %>\n\
+         <%#*<br>%>\n\
+      <img src='<%= img.src %>' class='<%= myclass %>'>\n\
+      "
+      result = "\n\
+      <%# var = '' %>\n\
+      <%#= content_tag :h1, 'title', :class=>'red' %><%# var = '' %>\n\
+         <%##*<br>%>\n\
+      <%#*<img src='%><%#= img.src %><%#*' class='%><%#= myclass %><%#*'>%>\n\
+      "
+      expect(ErbComment.commentOrDecomment(text)).toBe(true)
+      expect(ErbComment.comment(text)).toBe(result)
+      expect(ErbComment.commentOrDecomment(result)).toBe(false)
+      expect(ErbComment.decomment(result)).toBe(text)
