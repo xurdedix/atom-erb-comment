@@ -1,6 +1,8 @@
 # ERB Comment
 
- [Atom erb comment package](http://github.com)
+[![Build Status](https://travis-ci.org/xurdedix/atom-erb-comment.svg?branch=master)](https://travis-ci.org/xurdedix/atom-erb-comment)
+
+[Atom erb comment package](https://atom.io/packages/erb-comment)
 
 Patch for rails html.erb comment.
 Comment with ruby ​​comment instead of html comment if it is a file of type "HTML (Rails)" else launches the standard comments `"editor: toggle-line-comments"`

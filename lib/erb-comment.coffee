@@ -22,7 +22,7 @@ module.exports = ErbComment =
       selection = editor.getSelectedText()
       language = editor.getGrammar().name
       # console.log '|'+ selection + '|'
-      if language == "HTML (Rails)"
+      if language == "HTML (Rails)" || language == "JavaScript (Rails)"
         if this.commentOrDecomment(selection)
            text = this.comment(selection)
         else
