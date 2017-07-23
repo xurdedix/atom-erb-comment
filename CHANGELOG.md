@@ -9,5 +9,6 @@
 * Able to comment complex lines with html and erb mixed
 * If in the selection already there are commented lines to be able to conserve these lines if it is commented and it is commented
 
-## 0.2.1
-* 
+## 0.3.0
+* js.erb support
+* Test and travis
