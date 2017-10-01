@@ -1,7 +1,7 @@
 {
   "name": "erb-comment",
   "main": "./lib/erb-comment",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Patch for rails html.erb comment",
   "keywords": [
     "rails",
