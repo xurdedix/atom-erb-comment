@@ -21,8 +21,11 @@ module.exports = ErbComment =
         editor.selectLinesContainingCursors()
       selection = editor.getSelectedText()
       language = editor.getGrammar().name
+      console.log language
       # console.log '|'+ selection + '|'
-      if language == "HTML (Rails)" || language == "JavaScript (Rails)"
+
+      if ['HTML (Ruby - ERB)',"HTML (Rails)","JavaScript (Rails)"].includes? language
+      # if language == "HTML (Rails)" || language == "JavaScript (Rails)"
         if this.commentOrDecomment(selection)
            text = this.comment(selection)
         else
