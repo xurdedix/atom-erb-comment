@@ -20,16 +20,18 @@ module.exports = ErbComment =
       if ranges[0].end.column > 0 || ranges[0].start.row == ranges[0].end.row
         editor.selectLinesContainingCursors()
       selection = editor.getSelectedText()
-      language = editor.getGrammar().name
-      console.log language
-      # console.log '|'+ selection + '|'
+      res = this.exclude_character(selection)
+      selection   = res.selection
+      replace_cad = res.replace_cad
 
+      language = editor.getGrammar().name
       if ['HTML (Ruby - ERB)',"HTML (Rails)","JavaScript (Rails)"].includes? language
-      # if language == "HTML (Rails)" || language == "JavaScript (Rails)"
         if this.commentOrDecomment(selection)
            text = this.comment(selection)
         else
            text = this.decomment(selection)
+
+        text = this.revert_exclude_character(text,replace_cad)
         editor.insertText(text)
         editor.setSelectedBufferRanges(ranges)
       else
@@ -37,6 +39,24 @@ module.exports = ErbComment =
         editor.saveActiveItem()
         editorElement = atom.views.getView(atom.workspace.getActiveTextEditor())
         atom.commands.dispatch(editorElement, 'editor:toggle-line-comments')
+
+  exclude_character: (selection) ->
+    replace_cad = '@@@@'
+    regex = new RegExp(replace_cad,"g");
+    res = regex.exec(selection)
+    while res != null
+      replace_cad += "@"
+      regex = new RegExp(replace_cad,"g");
+      res = regex.exec(selection)
+
+    selection= selection.replace(/(.*[^>])(%)([^>].*)/,'$1' + replace_cad + '$3')
+    return {
+      selection: selection,
+      replace_cad: replace_cad
+      }
+
+  revert_exclude_character: (selection,replace_cad) ->
+    selection.replace(replace_cad,'%')
 
   comment: (selection) ->
     arr = selection.split("\n")
