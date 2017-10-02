@@ -20,18 +20,10 @@ module.exports = ErbComment =
       if ranges[0].end.column > 0 || ranges[0].start.row == ranges[0].end.row
         editor.selectLinesContainingCursors()
       selection = editor.getSelectedText()
-      res = this.exclude_character(selection)
-      selection   = res.selection
-      replace_cad = res.replace_cad
-
       language = editor.getGrammar().name
-      if ['HTML (Ruby - ERB)',"HTML (Rails)","JavaScript (Rails)"].includes? language
-        if this.commentOrDecomment(selection)
-           text = this.comment(selection)
-        else
-           text = this.decomment(selection)
 
-        text = this.revert_exclude_character(text,replace_cad)
+      if ['HTML (Ruby - ERB)',"HTML (Rails)","JavaScript (Rails)"].includes? language
+        text = this.processCommentOrDecomment(selection)
         editor.insertText(text)
         editor.setSelectedBufferRanges(ranges)
       else
@@ -39,6 +31,18 @@ module.exports = ErbComment =
         editor.saveActiveItem()
         editorElement = atom.views.getView(atom.workspace.getActiveTextEditor())
         atom.commands.dispatch(editorElement, 'editor:toggle-line-comments')
+
+  processCommentOrDecomment: (selection) ->
+    res = this.exclude_character(selection)
+    selection   = res.selection
+    replace_cad = res.replace_cad
+
+    if this.commentOrDecomment(selection)
+       text = this.comment(selection)
+    else
+       text = this.decomment(selection)
+
+    this.revert_exclude_character(text,replace_cad)
 
   exclude_character: (selection) ->
     replace_cad = '@@@@'
@@ -49,7 +53,15 @@ module.exports = ErbComment =
       regex = new RegExp(replace_cad,"g");
       res = regex.exec(selection)
 
-    selection= selection.replace(/(.*[^>])(%)([^>].*)/,'$1' + replace_cad + '$3')
+    arr = selection.split("\n")
+    for cad, i in arr
+      cad_process = cad.replace(/<%/g,'').replace(/%>/g,'')
+      if cad_process.replace('%','') != cad_process
+        arr[i]= cad.replace(/(.*[^>])(%)([^>].*)/,'$1' + replace_cad + '$3')
+
+    selection = arr.join("\n")
+
+
     return {
       selection: selection,
       replace_cad: replace_cad
